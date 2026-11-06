@@ -3,7 +3,7 @@
 An interactive web game built entirely within a single HTML file. This game is designed to be extremely lightweight, fast-loading, and playable directly in your browser without requiring any app installations.
 
 ## 🎮 Play Now
-[**Click here to play**]((https://matt-mal-00.github.io/Color_Ball_Game/)) 
+[**Click here to play**](https://matt-mal-00.github.io/Color_Ball_Game/) 
 
 ## ✨ Key Features
 * **Single-File Architecture:** The entire structure (HTML), visual styling (CSS), and game logic (JavaScript) are combined into one `index.html` file.
