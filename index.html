@@ -3,7 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="theme-color" content="#231e19">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Bola Warna">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data:; manifest-src 'self'; worker-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Bola Warna</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%94%B4%3C/text%3E%3C/svg%3E">
@@ -47,6 +53,10 @@ input{width:100%;font:inherit;padding:11px;border-radius:10px;border:2px solid v
 #go .sheet{max-width:340px}
 #go h2{font-size:32px}
 .big{font-size:30px;font-weight:800;color:var(--ac)}
+#lg{position:fixed;inset:0;z-index:50;background:var(--bg);display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:max(24px,env(safe-area-inset-top)) 16px 24px}
+#lg[hidden]{display:none}
+#app{padding-left:max(8px,env(safe-area-inset-left));padding-right:max(8px,env(safe-area-inset-right))}
+@media (min-aspect-ratio:5/4){#app{max-width:none;display:grid;grid-template-columns:auto minmax(230px,1fr);grid-template-rows:repeat(4,auto) 1fr;column-gap:14px;align-items:start}#bd{grid-column:1;grid-row:1/6;margin:0}#hd,#ms,#bar,#bar2{grid-column:2}}
 </style>
 </head>
 <body>
@@ -60,6 +70,7 @@ input{width:100%;font:inherit;padding:11px;border-radius:10px;border:2px solid v
   <div id="bar"><button id="bShop"></button><button id="bSet"></button><button id="bRe"></button></div>
   <div id="bar2"><button id="bL" aria-label="rotate left">↺</button><button id="bR" aria-label="rotate right">↻</button><button id="bV"></button><button id="bLb"></button></div>
 </div>
+<div id="lg" hidden></div>
 <div id="pn" hidden></div>
 <div id="go" hidden></div>
 <script>
@@ -70,8 +81,8 @@ const BG={standar:{p:0,a:"#d2b48a",b:"#80593a",f:"#5c3d26",s:"#3a3028"},grass:{p
 const SP={slow:{m:1.7,h:850,cap:7500},medium:{m:1,h:550,cap:4400},fast:{m:.55,h:350,cap:2400}};
 const BASE={roll:170,walk:260,jump:330};
 const TT={
-id:{lb:"Peringkat",lbh:"Papan Peringkat",lbn:"Peringkat bersama hanya aktif saat halaman dibuka lewat link Claude. Di sini hanya rekor di perangkat ini.",lbe:"Belum ada skor.",lbw:"Memuat…",score:"Skor",best:"Rekor",bal:"Saldo",pl:"Pemain",next:"Berikutnya",shop:"Toko",set:"Setelan",again:"Ulang",start:"Ketuk bola, lalu ketuk kotak tujuan.",target:"Arahkan ke kotak tujuan, lalu klik.",target2:"Ketuk kotak tujuan untuk melihat lintasan.",tapgo:"Ketuk tujuan yang sama lagi untuk berjalan.",nopath:"Tidak ada jalan kosong ke sana!",pop:(n,g)=>"Pecah "+n+" bola! +"+g+" poin",nt:"Giliran berikutnya.",full:"Papan penuh!",steps:n=>n+" langkah",over:"GAME OVER",rec:"Rekor baru!",play:"Main lagi",tb:"Tampilan Bola",tg:"Latar Papan",use:"Pakai",buy:p=>"Beli "+p,inuse:"Dipakai",owned:"Dimiliki",price:p=>"Harga: "+p+" poin",poor:"Saldo kurang.",bought:"Berhasil dibeli!",name:"Nama pemain",speed:"Kecepatan gerak bola",slow:"Lambat",medium:"Sedang",fast:"Cepat",lang:"Bahasa",snd:"Suara",on:"Nyala",off:"Mati",close:"Tutup",note:"Membeli mengurangi saldo. Rekor tidak berubah.",local:"Data tersimpan di perangkat ini saja.",n_klasik:"Bola Klasik",n_binatang:"Seri Binatang",n_tanaman:"Seri Tanaman",n_standar:"Papan Standar",n_grass:"Rumput",n_land:"Tanah",n_cloud:"Awan",roll:"bergulir",walk:"berjalan",jump:"melompat",def:"Pemain"},
-en:{lb:"Ranking",lbh:"Shared Ranking",lbn:"The shared ranking only works when the page is opened through the Claude link. Here you only see this device’s best score.",lbe:"No scores yet.",lbw:"Loading…",score:"Score",best:"Best",bal:"Balance",pl:"Player",next:"Next",shop:"Shop",set:"Settings",again:"Restart",start:"Tap a ball, then tap a target square.",target:"Point at a target square, then click.",target2:"Tap a target square to preview the path.",tapgo:"Tap the same square again to go.",nopath:"No empty path to there!",pop:(n,g)=>"Popped "+n+" balls! +"+g+" points",nt:"Next turn.",full:"Board full!",steps:n=>n+(n==1?" step":" steps"),over:"GAME OVER",rec:"New record!",play:"Play again",tb:"Ball Style",tg:"Board Style",use:"Use",buy:p=>"Buy "+p,inuse:"In use",owned:"Owned",price:p=>"Price: "+p+" points",poor:"Not enough balance.",bought:"Purchased!",name:"Player name",speed:"Ball movement speed",slow:"Slow",medium:"Medium",fast:"Fast",lang:"Language",snd:"Sound",on:"On",off:"Off",close:"Close",note:"Buying reduces your balance. Your best score is unchanged.",local:"Data is stored on this device only.",n_klasik:"Classic Balls",n_binatang:"Animal Series",n_tanaman:"Plant Series",n_standar:"Standard Board",n_grass:"Grass",n_land:"Land",n_cloud:"Clouds",roll:"rolls",walk:"walks",jump:"jumps",def:"Player"}};
+id:{title:"Bola Warna",lg_name:"Nama pemain",lg_pw:"Password",lg_in:"Masuk",lg_reg:"Daftar akun baru",e_user:"Nama 3-16 karakter (huruf, angka, _).",e_pass:"Password minimal 4 karakter.",e_taken:"Nama sudah dipakai di perangkat ini.",e_login:"Nama atau password salah.",lo:"Keluar akun",lg_note:"Akun dan password hanya tersimpan di perangkat ini dan tidak dikirim ke mana pun.",lb:"Peringkat",lbh:"Papan Peringkat",lbn:"Peringkat bersama hanya aktif saat halaman dibuka lewat link Claude. Di sini hanya rekor di perangkat ini.",lbe:"Belum ada skor.",lbw:"Memuat…",score:"Skor",best:"Rekor",bal:"Saldo",pl:"Pemain",next:"Berikutnya",shop:"Toko",set:"Setelan",again:"Ulang",start:"Ketuk bola, lalu ketuk kotak tujuan.",target:"Arahkan ke kotak tujuan, lalu klik.",target2:"Ketuk kotak tujuan untuk melihat lintasan.",tapgo:"Ketuk tujuan yang sama lagi untuk berjalan.",nopath:"Tidak ada jalan kosong ke sana!",pop:(n,g)=>"Pecah "+n+" bola! +"+g+" poin",nt:"Giliran berikutnya.",full:"Papan penuh!",steps:n=>n+" langkah",over:"GAME OVER",rec:"Rekor baru!",play:"Main lagi",tb:"Tampilan Bola",tg:"Latar Papan",use:"Pakai",buy:p=>"Beli "+p,inuse:"Dipakai",owned:"Dimiliki",price:p=>"Harga: "+p+" poin",poor:"Saldo kurang.",bought:"Berhasil dibeli!",name:"Nama pemain",speed:"Kecepatan gerak bola",slow:"Lambat",medium:"Sedang",fast:"Cepat",lang:"Bahasa",snd:"Suara",on:"Nyala",off:"Mati",close:"Tutup",note:"Membeli mengurangi saldo. Rekor tidak berubah.",local:"Data tersimpan di perangkat ini saja.",n_klasik:"Bola Klasik",n_binatang:"Seri Binatang",n_tanaman:"Seri Tanaman",n_standar:"Papan Standar",n_grass:"Rumput",n_land:"Tanah",n_cloud:"Awan",roll:"bergulir",walk:"berjalan",jump:"melompat",def:"Pemain"},
+en:{title:"Color Balls",lg_name:"Player name",lg_pw:"Password",lg_in:"Log in",lg_reg:"Create account",e_user:"Name: 3-16 characters (letters, digits, _).",e_pass:"Password must be at least 4 characters.",e_taken:"That name is already used on this device.",e_login:"Wrong name or password.",lo:"Log out",lg_note:"Accounts and passwords are stored only on this device and are never sent anywhere.",lb:"Ranking",lbh:"Shared Ranking",lbn:"The shared ranking only works when the page is opened through the Claude link. Here you only see this device’s best score.",lbe:"No scores yet.",lbw:"Loading…",score:"Score",best:"Best",bal:"Balance",pl:"Player",next:"Next",shop:"Shop",set:"Settings",again:"Restart",start:"Tap a ball, then tap a target square.",target:"Point at a target square, then click.",target2:"Tap a target square to preview the path.",tapgo:"Tap the same square again to go.",nopath:"No empty path to there!",pop:(n,g)=>"Popped "+n+" balls! +"+g+" points",nt:"Next turn.",full:"Board full!",steps:n=>n+(n==1?" step":" steps"),over:"GAME OVER",rec:"New record!",play:"Play again",tb:"Ball Style",tg:"Board Style",use:"Use",buy:p=>"Buy "+p,inuse:"In use",owned:"Owned",price:p=>"Price: "+p+" points",poor:"Not enough balance.",bought:"Purchased!",name:"Player name",speed:"Ball movement speed",slow:"Slow",medium:"Medium",fast:"Fast",lang:"Language",snd:"Sound",on:"On",off:"Off",close:"Close",note:"Buying reduces your balance. Your best score is unchanged.",local:"Data is stored on this device only.",n_klasik:"Classic Balls",n_binatang:"Animal Series",n_tanaman:"Plant Series",n_standar:"Standard Board",n_grass:"Grass",n_land:"Land",n_cloud:"Clouds",roll:"rolls",walk:"walks",jump:"jumps",def:"Player"}};
 
 /* ---- data lokal (localStorage, aman kalau diblokir) ---- */
 const KEY="bolawarna.v1";
@@ -226,11 +237,11 @@ function openSet(){
     "<span class=\"lb\">"+tx("speed")+"</span>"+seg("spd",[["slow",tx("slow")],["medium",tx("medium")],["fast",tx("fast")]],P.spd)+
     "<span class=\"lb\">"+tx("lang")+"</span>"+seg("lang",[["id","Indonesia"],["en","English"]],P.lang)+
     "<span class=\"lb\">"+tx("snd")+"</span>"+seg("snd",[[1,tx("on")],[0,tx("off")]],P.snd?1:0)+
-    "<p class=\"mu\">"+tx("local")+"</p><div class=\"row\"><button data-close=\"1\" class=\"pr\">"+tx("close")+"</button></div>")}
+    "<p class=\"mu\">"+tx("local")+"</p><div class=\"row\"><button data-lo=\"1\">"+tx("lo")+"</button></div><div class=\"row\"><button data-close=\"1\" class=\"pr\">"+tx("close")+"</button></div>")}
 pn.addEventListener("input",e=>{if(e.target.id==="nm"){P.name=e.target.value.slice(0,16);save()}});
 pn.addEventListener("click",e=>{
   ac();const b=e.target.closest("button");if(!b){if(e.target===pn)pn.hidden=true;return}
-  if(b.dataset.close){pn.hidden=true;return}
+  if(b.dataset.lo){pn.hidden=true;logout();return}if(b.dataset.close){pn.hidden=true;return}
   if(b.dataset.tab){tab=b.dataset.tab;shopMsg="";renderShop();beep([520],.03);return}
   if(b.dataset.id){const id=b.dataset.id,items=tab==="b"?TH:BG,own=tab==="b"?P.owned:P.obg;
     if(own.includes(id)){shopMsg=""}else if(P.bal>=items[id].p){P.bal-=items[id].p;own.push(id);shopMsg=tx("bought");beep([784,988,1175,1568],.08,.11)}else{shopMsg=tx("poor");beep([150],.16,.1);renderShop();return}
@@ -249,7 +260,7 @@ function camFit(){const th=50*Math.PI/180;CF.s=Math.sin(th);CF.c=Math.cos(th);CF
 function pj(X,Y,Z){if(P.view==="2d")return[f+(X+5)*cell,f+(10-Z)*cell-Math.max(0,Y-.47)*cell,cell,1];const r=raw(X,Y,Z),zm=1/(Math.abs(Math.cos(ang))+Math.abs(Math.sin(ang)));return[L/2+(CF.x+CF.F*r[0]-L/2)*zm,L/2+(CF.y+CF.F*r[1]-L/2)*zm,CF.F*zm/r[2],r[2]]}
 function ell(X,Z,rx,rz,Y=.07){const a=pj(X-rx,Y,Z),b=pj(X+rx,Y,Z),c=pj(X,Y,Z+rz),d=pj(X,Y,Z-rz);return[(a[0]+b[0])/2,(c[1]+d[1])/2,Math.abs(b[0]-a[0])/2,Math.abs(d[1]-c[1])/2]}
 function ellp(g,e,fill,lw){g.beginPath();g.ellipse(e[0],e[1],Math.max(1,e[2]),Math.max(1,e[3]),0,0,7);if(fill){g.fillStyle=fill;g.fill()}if(lw){g.lineWidth=lw;g.stroke()}}
-function fit(){dpr=Math.min(window.devicePixelRatio||1,3);L=Math.floor(cl(Math.min(innerWidth-16,innerHeight-300,620),260,620));f=L*.035;cell=(L-2*f)/G;bd.width=bd.height=Math.round(L*dpr);bd.style.width=bd.style.height=L+"px";nx.width=Math.round(120*dpr);nx.height=Math.round(40*dpr);nx.style.width="120px";nx.style.height="40px";camFit();bk="";buildBoard()}
+function fit(){dpr=Math.min(window.devicePixelRatio||1,3);const ls=innerWidth/innerHeight>=1.25;L=Math.floor(ls?cl(Math.min(innerHeight-24,innerWidth-270,760),240,760):cl(Math.min(innerWidth-16,innerHeight-300,620),260,620));f=L*.035;cell=(L-2*f)/G;bd.width=bd.height=Math.round(L*dpr);bd.style.width=bd.style.height=L+"px";nx.width=Math.round(120*dpr);nx.height=Math.round(40*dpr);nx.style.width="120px";nx.style.height="40px";camFit();bk="";buildBoard()}
 function inPoly(x,y,p){let c=false;for(let i=0,j=p.length-1;i<p.length;j=i++)if((p[i][1]>y)!==(p[j][1]>y)&&x<(p[j][0]-p[i][0])*(y-p[i][1])/(p[j][1]-p[i][1])+p[i][0])c=!c;return c}
 function hit(e){const b=bd.getBoundingClientRect(),x=(e.clientX-b.left)*L/b.width,y=(e.clientY-b.top)*L/b.height;let best=null;
   for(let r=0;r<G;r++)for(let c=0;c<G;c++){if(B[r][c]===null)continue;const[X,Z]=wc(r,c),p=pj(X,.47,Z);if((x-p[0])**2+(y-p[1])**2<=(p[2]*.42)**2&&(!best||p[3]<best[0]))best=[p[3],r,c]}
@@ -354,7 +365,42 @@ async function go(path){
   for(let i=0;i<n;i++){const[ax,az]=wc(path[i][0],path[i][1]),[bx,bz]=wc(path[i+1][0],path[i+1][1]),axis=[bz-az,0,-(bx-ax)],Rb=R0;await new Promise(res=>{mv={a:path[i],b:path[i+1],dur:skip?step/4:step,st,col,i,t0:performance.now(),res,R0:Rb,ax:axis}});R0=mm(rax(axis,Math.PI/2),R0)}
   const[er,ec]=path[n];mv=null;B[er][ec]=col;await turn();busy=false}
 addEventListener("resize",fit);
-fit();reset();requestAnimationFrame(frame);
+/* ===== akun lokal (nama + password), tersimpan hanya di perangkat ini ===== */
+const V1=JSON.parse(JSON.stringify(P)),AK="bolawarna.accounts.v1",esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));
+let AS={users:{},last:"",lang:""},cur=null,authBusy=false;
+try{const a=JSON.parse(localStorage.getItem(AK)||"{}");if(a&&typeof a==="object"){if(a.users&&typeof a.users==="object")AS.users=a.users;if(typeof a.last==="string")AS.last=a.last.slice(0,16);if(a.lang==="id"||a.lang==="en")AS.lang=a.lang}}catch(e){}
+if(AS.lang)P.lang=AS.lang;
+function asave(){try{localStorage.setItem(AK,JSON.stringify(AS))}catch(e){}}
+function save(){try{if(cur&&AS.users[cur])AS.users[cur].d=JSON.parse(JSON.stringify(P));AS.lang=P.lang}catch(e){}asave()}
+const rndHex=()=>{try{return[...crypto.getRandomValues(new Uint8Array(16))].map(x=>x.toString(16).padStart(2,"0")).join("")}catch(e){return String(Math.random()).slice(2)+Date.now()}};
+async function hashPw(pw,salt){try{const te=new TextEncoder(),k=await crypto.subtle.importKey("raw",te.encode(pw),"PBKDF2",false,["deriveBits"]),b=await crypto.subtle.deriveBits({name:"PBKDF2",salt:te.encode(salt),iterations:150000,hash:"SHA-256"},k,256);return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("")}catch(e){let h=2166136261;for(const ch of salt+pw){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)}return"f"+(h>>>0).toString(16)}}
+function applyProfile(d){
+  const num=(v,m)=>Number.isFinite(v)?Math.min(Math.max(Math.floor(v),0),m):0,has=(T,k)=>typeof k==="string"&&Object.prototype.hasOwnProperty.call(T,k),ids=(a,T)=>Array.isArray(a)?a.filter(x=>has(T,x)):[];
+  d=d&&typeof d==="object"?d:{};
+  P.best=num(d.best,1e9);P.bal=num(d.bal,1e9);P.owned=[...new Set(["klasik",...ids(d.owned,TH)])];P.obg=[...new Set(["standar",...ids(d.obg,BG)])];
+  P.th=P.owned.includes(d.th)?d.th:"klasik";P.bg=P.obg.includes(d.bg)?d.bg:"standar";P.spd=has(SP,d.spd)?d.spd:"medium";
+  if(d.lang==="id"||d.lang==="en")P.lang=d.lang;P.snd=typeof d.snd==="boolean"?d.snd:true;P.view=d.view==="2d"?"2d":"3d";P.rot=num(d.rot,3)}
+function showLogin(m,u){
+  if(u===undefined)u=AS.last||"";
+  const lg=$("#lg");lg.hidden=false;
+  lg.innerHTML='<div class="sheet"><h2>'+tx("title")+'</h2><div class="row"><button data-l="id" class="'+(P.lang==="id"?"on":"")+'">Indonesia</button><button data-l="en" class="'+(P.lang==="en"?"on":"")+'">English</button></div>'+
+    '<label class="lb" for="lu">'+tx("lg_name")+'</label><input id="lu" maxlength="16" autocomplete="username" autocapitalize="off" autocorrect="off" spellcheck="false" value="'+esc(u)+'">'+
+    '<label class="lb" for="lp">'+tx("lg_pw")+'</label><input id="lp" type="password" maxlength="32" autocomplete="current-password">'+
+    '<p class="mu" style="color:var(--ac);font-weight:700;min-height:20px">'+(m?tx(m):"")+'</p><div class="row"><button class="pr" id="lin">'+tx("lg_in")+'</button><button class="buy" id="lreg">'+tx("lg_reg")+'</button></div><p class="mu">'+tx("lg_note")+'</p></div>'}
+$("#lg").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;ac();if(b.dataset.l){const u=$("#lu").value;P.lang=b.dataset.l;save();showLogin("",u)}else if(b.id==="lin")doAuth(false);else if(b.id==="lreg")doAuth(true)});
+$("#lg").addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.tagName==="INPUT")doAuth(false)});
+async function doAuth(reg){
+  if(authBusy)return;authBusy=true;
+  try{const n=$("#lu").value.trim(),pw=$("#lp").value,key="u_"+n.toLowerCase(),fail=k=>{showLogin(k,n);beep([150],.16,.1)};
+    if(!/^[A-Za-z0-9_]{3,16}$/.test(n))return fail("e_user");if(pw.length<4)return fail("e_pass");
+    const u=AS.users[key];
+    if(reg){if(u)return fail("e_taken");const salt=rndHex(),first=!Object.keys(AS.users).length,mig=first&&(V1.best||V1.bal||V1.owned.length>1||V1.obg.length>1);AS.users[key]={n,salt,h:await hashPw(pw,salt),d:mig?JSON.parse(JSON.stringify(V1)):{}}}
+    else if(!u||(await hashPw(pw,u.salt))!==u.h)return fail("e_login");
+    enter(key)}finally{authBusy=false}}
+function enter(key){cur=key;const u=AS.users[key];AS.last=u.n;applyProfile(u.d);P.name=u.n;save();$("#lg").hidden=true;ang=P.rot*Math.PI/2;rotAnim=null;bk="";buildBoard();reset();beep([784,988,1175],.07,.1)}
+function logout(){save();cur=null;sel=pv=prev=null;showLogin()}
+if("serviceWorker" in navigator&&/^https?:/.test(location.protocol))addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+fit();reset();requestAnimationFrame(frame);showLogin();
 </script>
 </body>
 </html>
