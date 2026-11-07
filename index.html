@@ -94,7 +94,7 @@ try{const d=JSON.parse(localStorage.getItem(KEY)||"{}");if(d&&typeof d==="object
   P.th=P.owned.includes(d.th)?d.th:"klasik";P.bg=P.obg.includes(d.bg)?d.bg:"standar";
   if(has(SP,d.spd))P.spd=d.spd;if(d.lang==="id"||d.lang==="en")P.lang=d.lang;if(typeof d.snd==="boolean")P.snd=d.snd;
   if(d.view==="2d"||d.view==="3d")P.view=d.view;P.rot=num(d.rot,3)}}catch(e){}
-const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(P))}catch(e){}};
+/* save() didefinisikan di bagian akun lokal */
 const tx=k=>TT[P.lang][k];
 
 /* ---- suara ---- */
